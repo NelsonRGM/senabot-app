@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SENABOT - Universo 3D y Programación Educativa | SENA</title>
+  <meta name="description" content="Plataforma interactiva de aprendizaje de programación en 3D para jóvenes del SENA con SENABOT.">
+  
+  <!-- Fuentes e Iconos -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Estilos principales -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Three.js y OrbitControls desde CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+  <div id="app" class="app-container">
+    <!-- Navbar Header Institucional SENA -->
+    <header class="sena-header">
+      <div class="header-left">
+        <div class="sena-badge">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <span>SENA Colombia</span>
+        </div>
+        <h1 class="app-title">SENABOT <span class="badge-3d">3D</span></h1>
+        <span class="sub-title">Laboratorio de Lógica & Programación</span>
+      </div>
+
+      <div class="header-center">
+        <div class="level-selector-wrapper">
+          <label for="levelSelect"><i class="fa-solid fa-flag-checkered"></i> Reto:</label>
+          <select id="levelSelect" class="sena-select">
+            <!-- Cargado dinámicamente -->
+          </select>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <button id="btnResetWorld" class="btn btn-outline" title="Reiniciar Universo al estado inicial">
+          <i class="fa-solid fa-arrow-rotate-left"></i> Reiniciar Universo
+        </button>
+        <button id="btnToggleHelp" class="btn btn-secondary" title="Guía de Comandos">
+          <i class="fa-solid fa-circle-question"></i> Ayuda
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="main-workspace">
+
+      <!-- Left Panel: Program Editor -->
+      <aside class="panel editor-panel">
+        <div class="panel-header">
+          <h2><i class="fa-solid fa-code"></i> Programa de SENABOT</h2>
+          <span class="block-counter" id="blockCount">0 bloques</span>
+        </div>
+
+        <!-- Palette / Toolbox -->
+        <div class="toolbox">
+          <div class="toolbox-tabs">
+            <button class="tab-btn active" data-tab="actions"><i class="fa-solid fa-bolt"></i> Acciones</button>
+            <button class="tab-btn" data-tab="control"><i class="fa-solid fa-arrows-split-up-and-left"></i> Control</button>
+          </div>
+
+          <!-- Actions Tab -->
+          <div class="tab-content active" id="tab-actions">
+            <div class="block-palette">
+              <button class="block-btn action-btn" data-action="paso_adelante">
+                <i class="fa-solid fa-arrow-up"></i> Paso Adelante
+              </button>
+              <button class="block-btn action-btn" data-action="giro_derecha">
+                <i class="fa-solid fa-rotate-right"></i> Giro Derecha (90°)
+              </button>
+              <button class="block-btn action-btn" data-action="giro_izquierda">
+                <i class="fa-solid fa-rotate-left"></i> Giro Izquierda (90°)
+              </button>
+              <button class="block-btn action-btn" data-action="saltar">
+                <i class="fa-solid fa-person-running"></i> Saltar Bloque
+              </button>
+              <button class="block-btn action-btn" data-action="toma_disco">
+                <i class="fa-solid fa-hand-holding"></i> Toma Disco
+              </button>
+              <button class="block-btn action-btn" data-action="deja_disco">
+                <i class="fa-solid fa-box-archive"></i> Deja Disco
+              </button>
+            </div>
+          </div>
+
+          <!-- Control Structures Tab -->
+          <div class="tab-content" id="tab-control">
+            <div class="block-palette">
+              <button class="block-btn control-btn" data-action="repetir">
+                <i class="fa-solid fa-repeat"></i> Repetir N Veces
+              </button>
+              <button class="block-btn control-btn" data-action="si_condicion">
+                <i class="fa-solid fa-code-branch"></i> Si (Condición)
+              </button>
+              <button class="block-btn control-btn" data-action="mientras">
+                <i class="fa-solid fa-arrows-spin"></i> Mientras (Condición)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Program Sequence Area -->
+        <div class="program-canvas-container">
+          <div class="canvas-header">
+            <span>Instrucciones a ejecutar:</span>
+            <span id="insertTarget" class="insert-target" title="Aquí se añadirán los bloques nuevos">▸ programa principal</span>
+            <button id="btnClearProgram" class="btn-text-danger"><i class="fa-solid fa-trash-can"></i> Limpiar</button>
+          </div>
+          <div id="programList" class="program-list">
+            <div class="empty-state" id="emptyState">
+              <i class="fa-solid fa-puzzle-piece"></i>
+              <p>Haz clic en las acciones para añadirlas al programa de SENABOT, o arrástralas hasta aquí.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Player Controls -->
+        <div class="execution-controls">
+          <button id="btnRun" class="btn btn-primary btn-lg">
+            <i class="fa-solid fa-play"></i> Ejecutar
+          </button>
+          <button id="btnStep" class="btn btn-secondary">
+            <i class="fa-solid fa-forward-step"></i> Paso a Paso
+          </button>
+          <button id="btnStop" class="btn btn-danger" disabled>
+            <i class="fa-solid fa-stop"></i> Detener
+          </button>
+        </div>
+        
+        <div class="speed-control">
+          <label for="speedRange"><i class="fa-solid fa-gauge-high"></i> Velocidad:</label>
+          <input type="range" id="speedRange" min="1" max="5" value="3">
+          <span id="speedValue">Normal</span>
+        </div>
+      </aside>
+
+      <!-- Center Panel: 3D Universe Grid -->
+      <section class="panel world-panel">
+        <div class="panel-header world-header">
+          <div class="mission-info">
+            <h3 id="missionTitle"><i class="fa-solid fa-bullseye"></i> Misión Nivel 1</h3>
+            <p id="missionDescription">Lleva a SENABOT hasta la casilla marcada.</p>
+          </div>
+          <div class="camera-toolbar">
+            <button class="cam-btn" id="camIso" title="Vista Izométrica 3D"><i class="fa-solid fa-cube"></i> Isométrica</button>
+            <button class="cam-btn" id="camTop" title="Vista Superior (2D)"><i class="fa-solid fa-map"></i> Superior</button>
+            <button class="cam-btn" id="camReset" title="Reset Cámara"><i class="fa-solid fa-video"></i> Reset</button>
+          </div>
+        </div>
+
+        <!-- 3D Canvas Container -->
+        <div class="canvas-3d-wrapper" id="canvas3dContainer">
+          <!-- Canvas dinámico Three.js se inyecta aquí -->
+
+          <!-- HUD Overlay / Live Stats -->
+          <div class="hud-overlay">
+            <div class="hud-card">
+              <div class="hud-icon"><i class="fa-solid fa-robot"></i></div>
+              <div class="hud-details">
+                <span class="hud-label">SENABOT</span>
+                <span class="hud-value" id="hudPos">X: 0 | Z: 0</span>
+              </div>
+            </div>
+            <div class="hud-card">
+              <div class="hud-icon"><i class="fa-solid fa-compass"></i></div>
+              <div class="hud-details">
+                <span class="hud-label">Orientación</span>
+                <span class="hud-value" id="hudDir">Norte (▲)</span>
+              </div>
+            </div>
+            <div class="hud-card">
+              <div class="hud-icon"><i class="fa-solid fa-compact-disc"></i></div>
+              <div class="hud-details">
+                <span class="hud-label">Discos Carga</span>
+                <span class="hud-value" id="hudDiscs">0 / 0</span>
+              </div>
+            </div>
+            <div class="hud-card">
+              <div class="hud-icon"><i class="fa-solid fa-shoe-prints"></i></div>
+              <div class="hud-details">
+                <span class="hud-label">Pasos Dados</span>
+                <span class="hud-value" id="hudSteps">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Output Log & Status Bar -->
+        <div class="console-panel">
+          <div class="console-header">
+            <span><i class="fa-solid fa-terminal"></i> Consola de Ejecución SENABOT</span>
+            <button id="btnClearConsole" class="btn-icon"><i class="fa-solid fa-eraser"></i></button>
+          </div>
+          <div id="consoleLog" class="console-log">
+            <div class="log-entry system"><span class="timestamp">[00:00]</span> SENABOT 3D listo para recibir instrucciones.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Modal de Ayuda & Guía -->
+    <div id="helpModal" class="modal-backdrop hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-graduation-cap"></i> Guía de Instrucciones de SENABOT</h3>
+          <button id="btnCloseHelp" class="btn-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="guide-grid">
+            <div class="guide-item">
+              <div class="guide-icon"><i class="fa-solid fa-arrow-up"></i></div>
+              <h4>Paso Adelante</h4>
+              <p>Avanza 1 casilla en la dirección que apunta SENABOT.</p>
+            </div>
+            <div class="guide-item">
+              <div class="guide-icon"><i class="fa-solid fa-rotate-right"></i></div>
+              <h4>Girar 90°</h4>
+              <p>Gira a la Derecha o Izquierda manteniendo su posición actual.</p>
+            </div>
+            <div class="guide-item">
+              <div class="guide-icon"><i class="fa-solid fa-person-running"></i></div>
+              <h4>Saltar</h4>
+              <p>Salta sobre un obstáculo o sube a una casilla elevada de nivel +1.</p>
+            </div>
+            <div class="guide-item">
+              <div class="guide-icon"><i class="fa-solid fa-hand-holding"></i></div>
+              <h4>Toma / Deja Disco</h4>
+              <p>Recoge el disco brillante de la casilla actual o lo deposita en el suelo.</p>
+            </div>
+            <div class="guide-item">
+              <div class="guide-icon"><i class="fa-solid fa-repeat"></i></div>
+              <h4>Repetir N Veces</h4>
+              <p>Ejecuta el bloque de comandos hijo un número exacto de iteraciones.</p>
+            </div>
+            <div class="guide-item">
+              <div class="guide-icon"><i class="fa-solid fa-code-branch"></i></div>
+              <h4>Decisiones (Si / Sino)</h4>
+              <p>Evalúa condiciones como: <code>frente_libre</code>, <code>hay_disco</code>, o <code>tiene_disco</code>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts del sistema -->
+  <script src="js/levels.js"></script>
+  <script src="js/world3d.js"></script>
+  <script src="js/interpreter.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>

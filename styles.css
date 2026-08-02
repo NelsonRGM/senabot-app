@@ -1,0 +1,855 @@
+/* ==========================================================================
+   SENABOT 3D - Estilos Principales & Identidad SENA Colombia
+   ========================================================================== */
+
+:root {
+  --sena-green: #39A900;
+  --sena-green-dark: #2A8000;
+  --sena-green-glow: rgba(57, 169, 0, 0.35);
+  --sena-blue: #00324D;
+  --sena-blue-light: #005580;
+  --sena-dark-bg: #0B131D;
+  --sena-panel-bg: rgba(16, 28, 43, 0.85);
+  --sena-card-bg: rgba(24, 40, 60, 0.7);
+  --sena-border: rgba(57, 169, 0, 0.25);
+  --sena-accent-orange: #FF7A00;
+  --sena-accent-yellow: #FFC700;
+  --sena-danger: #EF4444;
+  --text-main: #F1F5F9;
+  --text-muted: #94A3B8;
+  
+  --font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--sena-dark-bg);
+  color: var(--text-main);
+  line-height: 1.5;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Container principal */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Navbar Header */
+.sena-header {
+  height: 60px;
+  background: linear-gradient(90deg, #002235 0%, var(--sena-blue) 100%);
+  border-bottom: 2px solid var(--sena-green);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  z-index: 20;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sena-badge {
+  background: var(--sena-green);
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  box-shadow: 0 0 10px var(--sena-green-glow);
+}
+
+.app-title {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.badge-3d {
+  color: var(--sena-green);
+  background: rgba(57, 169, 0, 0.15);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid var(--sena-green);
+  font-size: 0.9rem;
+}
+
+.sub-title {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  padding-left: 0.75rem;
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+}
+
+.level-selector-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.35rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid var(--sena-border);
+}
+
+.level-selector-wrapper label {
+  font-size: 0.85rem;
+  color: var(--sena-green);
+  font-weight: 600;
+}
+
+.sena-select {
+  background: var(--sena-blue);
+  color: #fff;
+  border: 1px solid var(--sena-green);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Main Workspace Split */
+.main-workspace {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+  background: var(--sena-dark-bg);
+}
+
+.panel {
+  background: var(--sena-panel-bg);
+  backdrop-filter: blur(12px);
+  border-right: 1px solid var(--sena-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  padding: 0.85rem 1.2rem;
+  border-bottom: 1px solid var(--sena-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.panel-header h2 {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  color: var(--sena-green);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.block-counter {
+  font-size: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  color: var(--text-muted);
+}
+
+/* Left Panel: Toolbox & Editor */
+.editor-panel {
+  width: 360px;
+  overflow: hidden;
+  height: 100%;
+}
+
+.toolbox {
+  border-bottom: 1px solid var(--sena-border);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.toolbox-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 0.6rem;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.tab-btn.active {
+  color: var(--sena-green);
+  border-bottom: 2px solid var(--sena-green);
+  background: rgba(57, 169, 0, 0.08);
+}
+
+.tab-content {
+  display: none;
+  padding: 0.75rem;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.block-palette {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+}
+
+.block-btn {
+  background: var(--sena-card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: var(--text-main);
+  padding: 0.5rem 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.block-btn:hover {
+  background: rgba(57, 169, 0, 0.2);
+  border-color: var(--sena-green);
+  transform: translateY(-1px);
+}
+
+.block-btn.control-btn {
+  border-left: 3px solid var(--sena-accent-orange);
+}
+
+.block-btn.action-btn {
+  border-left: 3px solid var(--sena-green);
+}
+
+/* Program Canvas Container */
+.program-canvas-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+  overflow: hidden;
+}
+
+.canvas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.btn-text-danger {
+  background: none;
+  border: none;
+  color: var(--sena-danger);
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.btn-text-danger:hover {
+  text-decoration: underline;
+}
+
+.program-list {
+  flex: 1;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px dashed var(--sena-border);
+  border-radius: 8px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.empty-state {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-muted);
+  padding: 1.5rem;
+}
+
+.empty-state i {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+  color: rgba(57, 169, 0, 0.4);
+}
+
+.empty-state p {
+  font-size: 0.82rem;
+}
+
+/* Program Items / Code Cards */
+.program-card {
+  background: var(--sena-card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: 4px solid var(--sena-green);
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.program-card.executing {
+  background: rgba(57, 169, 0, 0.3);
+  border-color: var(--sena-green);
+  box-shadow: 0 0 12px var(--sena-green-glow);
+  transform: scale(1.02);
+}
+
+.program-card.control-card {
+  border-left-color: var(--sena-accent-orange);
+  background: rgba(255, 122, 0, 0.08);
+}
+
+.card-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-handle {
+  color: var(--text-muted);
+  cursor: grab;
+  font-size: 0.75rem;
+}
+
+.card-title {
+  font-weight: 600;
+}
+
+.card-select {
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  border: 1px solid var(--sena-border);
+  border-radius: 4px;
+  padding: 0.15rem 0.3rem;
+  font-size: 0.75rem;
+  outline: none;
+}
+
+.card-num-input {
+  width: 45px;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  border: 1px solid var(--sena-border);
+  border-radius: 4px;
+  padding: 0.15rem 0.3rem;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.card-remove {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: color 0.15s ease;
+}
+
+.card-remove:hover {
+  color: var(--sena-danger);
+}
+
+.card-handle {
+  cursor: grab;
+}
+
+.program-card[draggable="true"]:active .card-handle {
+  cursor: grabbing;
+}
+
+/* Agrupación de una estructura de control con su contenido */
+.block-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sub-bloques indentados */
+.nested-container {
+  margin-top: 0.4rem;
+  margin-left: 0.6rem;
+  padding: 0.3rem 0 0.3rem 0.8rem;
+  border-left: 2px dashed var(--sena-accent-orange);
+  border-radius: 0 6px 6px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-height: 2.1rem;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+/* Contenedor vacío: invita a soltar instrucciones dentro */
+.nested-container.is-empty::after {
+  content: "Arrastra o haz clic en una instrucción para meterla aquí";
+  display: block;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.72rem;
+  font-style: italic;
+  color: var(--text-muted);
+  border: 1px dashed rgba(255, 122, 0, 0.35);
+  border-radius: 5px;
+}
+
+/* Destino de inserción activo */
+.active-target {
+  background: rgba(255, 122, 0, 0.09);
+  border-color: var(--sena-accent-orange);
+}
+
+.program-list.active-target {
+  border-style: dashed;
+  border-color: var(--sena-green);
+  box-shadow: inset 0 0 0 1px rgba(57, 169, 0, 0.25);
+}
+
+.nested-container.active-target {
+  box-shadow: inset 0 0 0 1px rgba(255, 122, 0, 0.35);
+}
+
+/* Etiqueta que indica dónde caerán los bloques nuevos */
+.insert-target {
+  margin-left: auto;
+  margin-right: 0.6rem;
+  padding: 0.12rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--sena-accent-orange);
+  background: rgba(255, 122, 0, 0.12);
+  border: 1px solid rgba(255, 122, 0, 0.3);
+  border-radius: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 55%;
+}
+
+/* Arrastrar y soltar */
+.program-card.dragging,
+.block-group.dragging {
+  opacity: 0.4;
+}
+
+.drop-active {
+  background: rgba(57, 169, 0, 0.12);
+}
+
+.drop-indicator {
+  height: 3px;
+  border-radius: 3px;
+  background: var(--sena-green);
+  box-shadow: 0 0 8px var(--sena-green-glow);
+  flex-shrink: 0;
+}
+
+/* Execution Controls & Speed */
+.execution-controls {
+  padding: 0.75rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.4rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid var(--sena-border);
+}
+
+.speed-control {
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.speed-control input[type="range"] {
+  flex: 1;
+  accent-color: var(--sena-green);
+}
+
+/* Buttons */
+.btn {
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.15s ease;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--sena-green);
+  color: #FFFFFF;
+  box-shadow: 0 0 10px var(--sena-green-glow);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--sena-green-dark);
+  box-shadow: 0 0 15px var(--sena-green);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-danger {
+  background: var(--sena-danger);
+  color: #fff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--sena-green);
+  color: var(--sena-green);
+}
+
+.btn-outline:hover {
+  background: var(--sena-green);
+  color: #fff;
+}
+
+/* Center Panel: World & Canvas */
+.world-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-right: none;
+  position: relative;
+}
+
+.world-header {
+  background: rgba(8, 16, 26, 0.9);
+}
+
+.mission-info h3 {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.mission-info p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.camera-toolbar {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.cam-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: var(--text-main);
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.cam-btn:hover {
+  background: var(--sena-green);
+  color: #fff;
+}
+
+/* Canvas 3D Wrapper */
+.canvas-3d-wrapper {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #0F2338 0%, #050B12 100%);
+}
+
+.canvas-3d-wrapper canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* HUD Overlay */
+.hud-overlay {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.hud-card {
+  background: rgba(10, 20, 32, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--sena-border);
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.hud-icon {
+  color: var(--sena-green);
+  font-size: 1.1rem;
+}
+
+.hud-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.hud-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+/* Console Panel */
+.console-panel {
+  height: 160px;
+  background: rgba(6, 12, 20, 0.95);
+  border-top: 1px solid var(--sena-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.console-header {
+  padding: 0.4rem 0.8rem;
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.78rem;
+  color: var(--sena-green);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.btn-icon:hover {
+  color: #fff;
+}
+
+.console-log {
+  flex: 1;
+  padding: 0.5rem 0.8rem;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.log-entry {
+  color: #D1D5DB;
+}
+
+.log-entry .timestamp {
+  color: var(--text-muted);
+  margin-right: 0.4rem;
+}
+
+.log-entry.success {
+  color: var(--sena-green);
+  font-weight: 600;
+}
+
+.log-entry.error {
+  color: var(--sena-danger);
+  font-weight: 600;
+}
+
+.log-entry.info {
+  color: #38BDF8;
+}
+
+/* Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-backdrop.hidden {
+  display: none;
+}
+
+.modal-card {
+  background: var(--sena-dark-bg);
+  border: 1px solid var(--sena-green);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 650px;
+  box-shadow: 0 0 30px var(--sena-green-glow);
+}
+
+.modal-header {
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid var(--sena-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  font-family: var(--font-heading);
+  color: var(--sena-green);
+  font-size: 1.1rem;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 1.2rem;
+}
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.guide-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.8rem;
+}
+
+.guide-icon {
+  color: var(--sena-green);
+  font-size: 1.2rem;
+  margin-bottom: 0.3rem;
+}
+
+.guide-item h4 {
+  font-size: 0.9rem;
+  color: #fff;
+  margin-bottom: 0.2rem;
+}
+
+.guide-item p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
