@@ -56,6 +56,9 @@ class World3D {
   // los discos simplemente quedan dorados lisos.
   static get DISC_LOGO_URL() { return 'assets/disco-logo.png'; }
   static get GOAL_LOGO_URL() { return 'assets/logo-sena.png'; }
+  // Píxeles que sube el tablero dentro del lienzo: centrado, la esquina
+  // sur-este quedaba tapada por el borde inferior del contenedor.
+  static get VIEW_SHIFT_Y() { return 100; }
 
   // Dimensiones del disco recolectable
   static get DISC_RADIUS() { return 0.42; }
@@ -147,10 +150,35 @@ class World3D {
     this.animate();
   }
 
+  /**
+   * Sube el tablero VIEW_SHIFT_Y píxeles dentro del lienzo desplazando el
+   * frustum, sin tocar el ángulo ni la distancia de cámara.
+   *
+   * Solo aplica a la vista isométrica: es la que dejaba la esquina sur-este
+   * fuera del lienzo. La vista superior ya viene ajustada y con el
+   * desplazamiento perdería el borde norte.
+   *
+   * Hay que reaplicarlo en cada resize porque updateProjectionMatrix() reutiliza
+   * el tamaño con el que se registró el desplazamiento.
+   */
+  applyViewShift() {
+    const width = this.container.clientWidth;
+    const height = this.container.clientHeight;
+    if (!width || !height) return;
+
+    if (this.viewMode === 'top') {
+      this.camera.clearViewOffset();
+    } else {
+      this.camera.setViewOffset(width, height, 0, World3D.VIEW_SHIFT_Y, width, height);
+    }
+  }
+
   setCameraIsometric() {
     const centerOffset = (this.gridSize.cols * this.tileSize) / 2;
+    this.viewMode = 'isometric';
     this.camera.position.set(centerOffset + 12, 14, centerOffset + 12);
     this.camera.lookAt(centerOffset, 0, centerOffset);
+    this.applyViewShift();
     if (this.controls) {
       this.controls.target.set(centerOffset, 0, centerOffset);
       this.controls.update();
@@ -159,8 +187,10 @@ class World3D {
 
   setCameraTop() {
     const centerOffset = (this.gridSize.cols * this.tileSize) / 2;
+    this.viewMode = 'top';
     this.camera.position.set(centerOffset, 22, centerOffset + 0.01);
     this.camera.lookAt(centerOffset, 0, centerOffset);
+    this.applyViewShift();
     if (this.controls) {
       this.controls.target.set(centerOffset, 0, centerOffset);
       this.controls.update();
@@ -878,6 +908,7 @@ class World3D {
     const width = this.container.clientWidth;
     const height = this.container.clientHeight;
     this.camera.aspect = width / height;
+    this.applyViewShift(); // Reaplica el desplazamiento con el tamaño nuevo
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
   }
