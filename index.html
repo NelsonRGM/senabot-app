@@ -57,10 +57,19 @@
 
       <!-- Left Panel: Program Editor -->
       <aside class="panel editor-panel">
+        <!-- Asa de la hoja deslizable: solo visible en móvil -->
+        <button class="sheet-handle" id="sheetHandle" aria-label="Mostrar u ocultar el editor" aria-expanded="false">
+          <span class="sheet-grip"></span>
+        </button>
+
         <div class="panel-header">
           <h2><i class="fa-solid fa-code"></i> Programa de SENABOT</h2>
           <span class="block-counter" id="blockCount">0 bloques</span>
         </div>
+
+        <!-- Cuerpo plegable de la hoja. En escritorio es transparente al
+             layout (display: contents), así que no cambia nada. -->
+        <div class="sheet-body">
 
         <!-- Palette / Toolbox -->
         <div class="toolbox">
@@ -124,6 +133,8 @@
           </div>
         </div>
 
+        </div><!-- /.sheet-body -->
+
         <!-- Player Controls -->
         <div class="execution-controls">
           <button id="btnRun" class="btn btn-primary btn-lg">
@@ -134,6 +145,10 @@
           </button>
           <button id="btnStop" class="btn btn-danger" disabled>
             <i class="fa-solid fa-stop"></i> Detener
+          </button>
+          <!-- Solo en móvil: abre velocidad y reiniciar universo -->
+          <button id="btnSheetSettings" class="btn btn-secondary" aria-label="Ajustes" aria-expanded="false">
+            <i class="fa-solid fa-gear"></i>
           </button>
         </div>
         
@@ -154,6 +169,10 @@
             <h3 id="missionTitle"><i class="fa-solid fa-bullseye"></i> Misión Nivel 1</h3>
             <p id="missionDescription">Lleva a SENABOT hasta la casilla marcada.</p>
           </div>
+          <!-- Solo en móvil: la descripción no cabe fija, se consulta aquí -->
+          <button id="btnMissionInfo" class="btn-icon-square" aria-label="Ver la descripción del reto" aria-expanded="false">
+            <i class="fa-solid fa-info"></i>
+          </button>
           <div class="camera-toolbar">
             <button class="cam-btn" id="camIso" title="Vista Izométrica 3D"><i class="fa-solid fa-cube"></i> Isométrica</button>
             <button class="cam-btn" id="camTop" title="Vista Superior (2D)"><i class="fa-solid fa-map"></i> Superior</button>
@@ -164,6 +183,9 @@
         <!-- 3D Canvas Container -->
         <div class="canvas-3d-wrapper" id="canvas3dContainer">
           <!-- Canvas dinámico Three.js se inyecta aquí -->
+
+          <!-- Aviso flotante: en móvil sustituye a la consola siempre visible -->
+          <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
           <!-- Guía de controles de cámara -->
           <div class="controls-hint">

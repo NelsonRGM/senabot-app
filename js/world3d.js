@@ -177,17 +177,53 @@ class World3D {
     const height = this.container.clientHeight;
     if (!width || !height) return;
 
-    if (this.viewMode === 'top') {
+    // La hoja del editor tapa la parte baja del lienzo en móvil. Se sube medio
+    // tapado para que el tablero quede centrado en la franja que sí se ve.
+    const tapado = Math.min(this.bottomInset || 0, height * 0.85);
+
+    // Los 100 px están calibrados para el lienzo de escritorio, donde el
+    // tablero casi lo llena y la esquina sur-este se salía por abajo. Cuando la
+    // cámara ya se alejó para que quepa (lienzo vertical), sobra espacio de
+    // sobra y ese desplazamiento solo lo empujaría fuera de cuadro.
+    const base = this.factorEncuadre() > 1 ? 0 : World3D.VIEW_SHIFT_Y;
+    const desplazamiento = base + tapado / 2;
+
+    if (this.viewMode === 'top' && !desplazamiento) {
       this.camera.clearViewOffset();
     } else {
-      this.camera.setViewOffset(width, height, 0, World3D.VIEW_SHIFT_Y, width, height);
+      this.camera.setViewOffset(width, height, 0, desplazamiento, width, height);
     }
+  }
+
+  /**
+   * Píxeles del lienzo que quedan ocultos por debajo, cuando algo se superpone
+   * (la hoja del editor en móvil). Reencuadra para no perder el tablero.
+   */
+  setBottomInset(px) {
+    this.bottomInset = px || 0;
+    this.applyViewShift();
+  }
+
+  /**
+   * El campo de visión de 45° es vertical, así que en un lienzo más alto que
+   * ancho —el de un teléfono— el ancho visible se estrecha y el tablero deja
+   * de caber. Se aleja la cámara lo justo para recuperarlo.
+   */
+  factorEncuadre() {
+    const ancho = this.container.clientWidth;
+    const alto = this.container.clientHeight;
+    if (!ancho || !alto) return 1;
+
+    const aspecto = ancho / alto;
+    const minimo = 1.35; // Por debajo de esto el tablero se sale por los lados
+    return aspecto >= minimo ? 1 : minimo / aspecto;
   }
 
   setCameraIsometric() {
     const centerOffset = (this.gridSize.cols * this.tileSize) / 2;
     this.viewMode = 'isometric';
-    this.camera.position.set(centerOffset + 12, 14, centerOffset + 12);
+    const f = this.factorEncuadre();
+    this.camera.position.set(centerOffset + 12 * f, 14 * f, centerOffset + 12 * f);
     this.camera.lookAt(centerOffset, 0, centerOffset);
     this.applyViewShift();
     if (this.controls) {
@@ -199,13 +235,19 @@ class World3D {
   setCameraTop() {
     const centerOffset = (this.gridSize.cols * this.tileSize) / 2;
     this.viewMode = 'top';
-    this.camera.position.set(centerOffset, 22, centerOffset + 0.01);
+    this.camera.position.set(centerOffset, 22 * this.factorEncuadre(), centerOffset + 0.01);
     this.camera.lookAt(centerOffset, 0, centerOffset);
     this.applyViewShift();
     if (this.controls) {
       this.controls.target.set(centerOffset, 0, centerOffset);
       this.controls.update();
     }
+  }
+
+  // Vuelve a encuadrar con la vista actual, sin cambiar de modo
+  reencuadrar() {
+    if (this.viewMode === 'top') this.setCameraTop();
+    else this.setCameraIsometric();
   }
 
   loadLevel(levelData) {
@@ -924,9 +966,10 @@ class World3D {
     const width = this.container.clientWidth;
     const height = this.container.clientHeight;
     this.camera.aspect = width / height;
-    this.applyViewShift(); // Reaplica el desplazamiento con el tamaño nuevo
-    this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
+    // Reencuadra: al girar el teléfono cambia el aspecto y con él la distancia
+    // que necesita la cámara para que el tablero siga cabiendo
+    this.reencuadrar();
   }
 
   animate() {

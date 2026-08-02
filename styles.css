@@ -945,3 +945,373 @@ body {
   font-size: 0.78rem;
   color: var(--text-muted);
 }
+
+/* ==========================================================================
+   PIEZAS DE LA VERSIÓN MÓVIL
+   En escritorio no se ven: el asa, los ajustes, el ⓘ del reto, las flechas
+   de reordenar y el aviso flotante solo existen para el teléfono.
+   ========================================================================== */
+
+.sheet-handle,
+#btnSheetSettings,
+#btnMissionInfo,
+.card-move {
+  display: none;
+}
+
+/* Transparente al layout: en escritorio el editor se comporta igual que antes */
+.sheet-body {
+  display: contents;
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex-shrink: 0;
+}
+
+/* Aviso flotante que sustituye a la consola fija en móvil */
+.toast {
+  display: none;
+  position: absolute;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%) translateY(0.5rem);
+  max-width: 88%;
+  background: rgba(10, 20, 32, 0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--sena-border);
+  border-left: 3px solid var(--sena-green);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--text-main);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 15;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast.tipo-error { border-left-color: var(--sena-danger); }
+.toast.tipo-success { border-left-color: var(--sena-green); }
+.toast.tipo-info { border-left-color: var(--sena-accent-yellow); }
+
+/* ==========================================================================
+   VERSIÓN MÓVIL — TELÉFONO EN VERTICAL
+
+   El universo 3D ocupa toda la pantalla y el editor vive en una hoja que sube
+   desde abajo, con dos posiciones. La barra de acción queda anclada al
+   viewport para que Ejecutar esté siempre a un toque.
+
+   La tablet no entra aquí: usa la versión de escritorio, así que el corte es
+   solo por ancho.
+   ========================================================================== */
+@media (max-width: 860px) {
+
+  /* --- Cabecera: dos filas --- */
+  .sena-header {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.6rem;
+    padding: 0.45rem 0.75rem;
+  }
+
+  .sub-title {
+    display: none; /* No cabe y no aporta en pantalla chica */
+  }
+
+  .app-title { font-size: 1.1rem; }
+  .sena-badge { font-size: 0.65rem; padding: 0.2rem 0.45rem; }
+  .header-left { gap: 0.5rem; }
+
+  .header-center {
+    order: 3;
+    width: 100%;
+  }
+
+  .level-selector-wrapper {
+    width: 100%;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .sena-select {
+    flex: 1;
+    min-width: 0; /* Sin esto el select desborda la fila */
+  }
+
+  /* Los botones quedan solo con ícono: font-size 0 oculta el texto suelto,
+     que no está envuelto en ningún elemento propio */
+  .header-right .btn {
+    font-size: 0;
+    gap: 0;
+    padding: 0.45rem 0.6rem;
+  }
+
+  .header-right .btn i { font-size: 0.95rem; }
+
+  /* --- El universo ocupa todo lo que sobra --- */
+  .main-workspace {
+    display: block;
+    position: relative;
+  }
+
+  .world-panel {
+    height: 100%;
+    border-right: none;
+  }
+
+  .canvas-3d-wrapper { flex: 1; }
+
+  /* La consola fija desaparece: su papel lo hace el aviso flotante */
+  .console-panel { display: none; }
+
+  /* Arriba y no abajo: así se ve igual con la hoja recogida o extendida */
+  .toast {
+    display: block;
+    top: 3.2rem;
+    bottom: auto;
+    transform: translateX(-50%) translateY(-0.5rem);
+  }
+
+  .toast.visible {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* --- Cabecera del universo --- */
+  .world-header {
+    padding: 0.4rem 0.6rem;
+    gap: 0.5rem;
+  }
+
+  .mission-info {
+    min-width: 0; /* Permite que el título se recorte en vez de desbordar */
+  }
+
+  .mission-info h3 {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+
+  /* La descripción se consulta con el botón ⓘ */
+  .mission-info p { display: none; }
+
+  #btnMissionInfo {
+    display: flex;
+    margin-left: auto;
+  }
+
+  /* Cámara: solo íconos, mismo truco del font-size */
+  .cam-btn {
+    font-size: 0;
+    gap: 0;
+    padding: 0.35rem 0.5rem;
+  }
+
+  .cam-btn i { font-size: 0.8rem; }
+
+  /* --- HUD: solo discos y pasos, en una fila --- */
+  .hud-overlay {
+    top: 0.4rem;
+    left: 0.4rem;
+    right: 0.4rem;
+    flex-direction: row;
+    gap: 0.3rem;
+  }
+
+  /* Posición y orientación se quitan: el aprendiz las ve en la escena */
+  .hud-card:nth-child(1),
+  .hud-card:nth-child(2) {
+    display: none;
+  }
+
+  .hud-card { padding: 0.2rem 0.5rem; gap: 0.35rem; }
+  .hud-icon { font-size: 0.8rem; }
+  .hud-label { font-size: 0.55rem; }
+  .hud-value { font-size: 0.72rem; }
+
+  /* --- Guía de cámara: no hay botones de mouse en una pantalla táctil --- */
+  .controls-hint { display: none; }
+
+  /* ======================================================================
+     LA HOJA DESLIZABLE
+     ====================================================================== */
+  .editor-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    width: auto;
+    height: 5.9rem;               /* Recogida: asa + barra de acción */
+    border-right: none;
+    border-top: 1px solid var(--sena-green);
+    border-radius: 14px 14px 0 0;
+    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.5);
+    transition: height 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* No más: por encima de esto la hoja tapa el universo entero y se pierde el
+     sentido de este patrón, que es seguir viendo al robot al ejecutar */
+  .editor-panel.abierta {
+    height: 64dvh;
+  }
+
+  .sheet-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    height: 1.7rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    /* Zona de arrastre: conviene que no capture el gesto como texto */
+    touch-action: none;
+  }
+
+  .sheet-grip {
+    width: 2.5rem;
+    height: 0.25rem;
+    border-radius: 999px;
+    background: var(--text-muted);
+    transition: background 0.15s ease;
+  }
+
+  .sheet-handle:hover .sheet-grip { background: var(--sena-green); }
+
+  /* La cabecera del editor solo aparece con la hoja extendida */
+  .editor-panel:not(.abierta) > .panel-header { display: none; }
+
+  .editor-panel > .panel-header {
+    padding: 0.35rem 0.75rem 0.5rem;
+    border-bottom: none;
+  }
+
+  .editor-panel > .panel-header h2 { font-size: 0.9rem; }
+
+  /* Cuerpo plegable: es lo que se comprime al recoger la hoja */
+  .sheet-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Recogida no se muestra nada del editor. Sin esto, al abrir los ajustes la
+     hoja crece y asoma media fila de la paleta por detrás del desplegable. */
+  .editor-panel:not(.abierta) .sheet-body { display: none; }
+
+  .toolbox { flex-shrink: 0; }
+  .tab-content { padding: 0.45rem; }
+
+  /* La paleta pasa de rejilla de dos columnas a fila con desplazamiento
+     horizontal: apilada gastaba ~155 px de alto que necesita la lista */
+  .block-palette {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 0.4rem;
+    padding-bottom: 0.3rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .block-btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    min-height: 42px;
+    font-size: 0.75rem;
+  }
+
+  .program-canvas-container {
+    padding: 0.45rem;
+    min-height: 0;
+  }
+
+  /* --- Barra de acción: anclada abajo, nunca se mueve --- */
+  .execution-controls {
+    position: relative;
+    grid-template-columns: 1.5fr 1.2fr 1fr auto;
+    padding: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .execution-controls .btn {
+    min-height: 44px;
+    padding: 0.5rem 0.3rem;
+    font-size: 0.72rem;
+    justify-content: center;
+    text-align: center;
+  }
+
+  #btnSheetSettings {
+    display: flex;
+    padding: 0.5rem 0.7rem;
+  }
+
+  /* --- Ajustes: velocidad y reiniciar, sobre la barra de acción ---
+     Se ancla al alto de la barra y no con bottom: 100%, porque el
+     backdrop-filter del panel lo convierte en el bloque contenedor y su
+     overflow: hidden recortaría el desplegable. */
+  .speed-control {
+    position: absolute;
+    bottom: 4.3rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    border-radius: 10px;
+    border: 1px solid var(--sena-border);
+    background: rgba(10, 20, 32, 0.96);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    display: none;
+  }
+
+  .editor-panel.ajustes-abiertos .speed-control { display: flex; }
+
+  /* Con la hoja recogida no hay alto para el desplegable, así que crece lo justo */
+  .editor-panel.ajustes-abiertos:not(.abierta) { height: 9.6rem; }
+
+  /* --- Reordenar con flechas: sustituye al arrastre, que el tacto no dispara --- */
+  .card-handle { display: none; }
+
+  .card-move {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 5px;
+    color: var(--text-main);
+    font-size: 0.7rem;
+    cursor: pointer;
+  }
+
+  .card-move:active { background: var(--sena-green); }
+
+  .card-remove { min-width: 1.9rem; min-height: 1.9rem; }
+
+  /* --- Destino de inserción bien visible: es como se anida sin arrastrar --- */
+  .nested-container.active-target {
+    box-shadow: inset 0 0 0 2px var(--sena-accent-orange);
+  }
+
+  .program-list.active-target {
+    box-shadow: inset 0 0 0 2px var(--sena-green);
+  }
+
+  /* --- Modal de ayuda --- */
+  .guide-grid { grid-template-columns: 1fr; }
+}

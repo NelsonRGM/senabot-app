@@ -54,16 +54,39 @@ Como la persistencia vive en Laravel, el desbloqueo no puede funcionar hasta que
 
 ## Hitos pendientes
 
-### 1. Versión móvil
+### 1. Versión móvil — implementada
 
-**En definición.** El diseño lo fija Nelson antes de escribir código.
+**Alcance:** solo teléfono en vertical. La tablet usa la versión de PC, así que el corte es por ancho. Esta primera versión **no** toca persistencia, niveles de dificultad ni Laravel; eso queda para una segunda versión.
 
-La interfaz actual es de escritorio: dos columnas (editor de 360 px y universo 3D con consola) que asumen ancho amplio y no tienen ninguna media query. En móvil hay que resolver al menos:
+**Propósito:** que el aprendiz pueda estudiar en su tiempo libre desde el teléfono. El trabajo de aula sigue siendo en PC, así que se aceptan limitaciones frente al escritorio, pero debe poder jugar de verdad.
 
-- la convivencia del lienzo 3D con el editor de bloques, que juntos no caben en el alto de un teléfono;
-- los controles de cámara, que hoy se explican con botones del mouse;
-- el arrastrar y soltar bloques, que no funciona con el tacto (tocar el bloque sí lo añade, así que degrada bien);
-- si la navegación de niveles y mapas con candados entra en este hito o llega después.
+#### El problema
+
+Sumando cabecera, misión, lienzo, consola, paleta, lista de instrucciones y botones de ejecución hacen falta unos 1000 px de alto. Un teléfono da 650–750. Sobra ancho y falta alto.
+
+#### La solución: hoja deslizable
+
+El universo 3D ocupa toda la pantalla y el editor vive en una hoja que sube desde abajo.
+
+| Aspecto | Decisión |
+| --- | --- |
+| Posiciones de la hoja | Dos: recogida y extendida |
+| Barra de acción | Anclada al viewport, siempre visible: Ejecutar, Paso a Paso, Detener, ⚙ |
+| ⚙ contiene | Velocidad y Reiniciar universo |
+| HUD | Solo discos y pasos. Se quitan posición y orientación |
+| Descripción del reto | Tras un botón ⓘ, nunca fija |
+| Consola | Aviso flotante con el último mensaje, más el registro completo bajo demanda |
+| Paleta | Fila con desplazamiento horizontal, en vez de rejilla de dos columnas |
+| Añadir bloques | Tocar. Sin arrastrar |
+| Reordenar | Flechas ⌃⌄ en cada bloque, **solo en móvil**. En PC sigue el arrastre |
+| Anidar | Tocando dentro de la estructura, que pasa a ser el destino de inserción |
+| Sacar de una estructura | No se implementa. Se borra el bloque y se vuelve a añadir |
+
+Aun extendida, la hoja deja ver una franja del universo: es lo que distingue este patrón de unas pestañas, porque al ejecutar se ve algo pasar sin cambiar de vista.
+
+La barra de acción va anclada al viewport y no dentro de la hoja, para que Ejecutar esté siempre a un toque.
+
+La paleta apilada en dos columnas gasta unos 155 px de alto; en fila gasta unos 50 y le cede ese espacio a la lista de instrucciones, que es lo que el aprendiz mira mientras programa.
 
 ### 2. Creador de niveles
 

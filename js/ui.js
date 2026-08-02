@@ -36,8 +36,94 @@ class UI {
     // 4. Configurar Event Listeners
     this.setupEventListeners();
     this.setupProgramCanvas();
+    this.setupMobileSheet();
 
     this.updateHUD();
+  }
+
+  static get MOBILE_QUERY() { return '(max-width: 860px)'; }
+
+  esMovil() {
+    return window.matchMedia(UI.MOBILE_QUERY).matches;
+  }
+
+  /**
+   * Hoja deslizable del editor. Solo actúa en móvil; en escritorio el panel es
+   * una columna fija y ninguno de estos controles se ve.
+   */
+  setupMobileSheet() {
+    const hoja = document.querySelector('.editor-panel');
+    const asa = document.getElementById('sheetHandle');
+    const ajustes = document.getElementById('btnSheetSettings');
+    const infoReto = document.getElementById('btnMissionInfo');
+
+    const sincronizarLienzo = () => {
+      // La hoja se superpone al lienzo: se le informa cuánto le tapa para que
+      // reencuadre el tablero en la franja visible.
+      this.world.setBottomInset(this.esMovil() ? hoja.offsetHeight : 0);
+    };
+
+    const abrirHoja = (abierta) => {
+      hoja.classList.toggle('abierta', abierta);
+      asa.setAttribute('aria-expanded', String(abierta));
+    };
+
+    // Se reencuadra cuando la animación de alto termina de verdad. Medir con un
+    // temporizador daba el alto de partida, porque la transición sigue en curso.
+    hoja.addEventListener('transitionend', (e) => {
+      if (e.propertyName === 'height' && e.target === hoja) sincronizarLienzo();
+    });
+
+    // El asa se toca o se desliza
+    asa.addEventListener('click', () => abrirHoja(!hoja.classList.contains('abierta')));
+
+    let inicioY = null;
+    asa.addEventListener('pointerdown', (e) => { inicioY = e.clientY; });
+    asa.addEventListener('pointerup', (e) => {
+      if (inicioY === null) return;
+      const dy = e.clientY - inicioY;
+      inicioY = null;
+      if (Math.abs(dy) < 24) return; // Fue un toque, lo resuelve el click
+      e.preventDefault();
+      abrirHoja(dy < 0);
+    });
+
+    // Ajustes: velocidad y reiniciar universo
+    ajustes.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const abierto = hoja.classList.toggle('ajustes-abiertos');
+      ajustes.setAttribute('aria-expanded', String(abierto));
+    });
+    document.addEventListener('click', (e) => {
+      if (!hoja.classList.contains('ajustes-abiertos')) return;
+      if (e.target.closest('.speed-control') || e.target.closest('#btnSheetSettings')) return;
+      hoja.classList.remove('ajustes-abiertos');
+      ajustes.setAttribute('aria-expanded', 'false');
+    });
+
+    // La descripción del reto no cabe fija en móvil: se consulta aquí
+    infoReto.addEventListener('click', () => {
+      this.mostrarToast(this.currentLevel.description, 'info', 7000);
+    });
+
+    window.addEventListener('resize', sincronizarLienzo);
+    sincronizarLienzo();
+  }
+
+  /**
+   * Aviso flotante sobre el lienzo. En móvil sustituye a la consola fija, que
+   * ahí no cabe; en escritorio no se muestra porque la consola está a la vista.
+   */
+  mostrarToast(mensaje, tipo = 'system', duracion = 3200) {
+    if (!this.esMovil()) return;
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+
+    toast.textContent = mensaje;
+    toast.className = `toast visible tipo-${tipo}`;
+
+    clearTimeout(this.toastTimer);
+    this.toastTimer = setTimeout(() => toast.classList.remove('visible'), duracion);
   }
 
   // El lienzo del programa es la zona raíz: acepta bloques soltados y
@@ -205,6 +291,24 @@ class UI {
   }
 
   /**
+   * Controles del lado derecho de una tarjeta. Las flechas solo se ven en
+   * móvil: allí no hay arrastre, así que son la única forma de reordenar.
+   */
+  static get CARD_ACTIONS_HTML() {
+    return `
+      <div class="card-actions">
+        <button class="card-move" data-dir="-1" title="Subir bloque" aria-label="Subir bloque">
+          <i class="fa-solid fa-chevron-up"></i>
+        </button>
+        <button class="card-move" data-dir="1" title="Bajar bloque" aria-label="Bajar bloque">
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <button class="card-remove" title="Eliminar bloque">&times;</button>
+      </div>
+    `;
+  }
+
+  /**
    * Inserta un bloque. Sin `container` va al contenedor activo, que puede ser
    * el programa principal o el interior de cualquier estructura de control.
    */
@@ -242,17 +346,14 @@ class UI {
         <i class="fa-solid ${info.icon}" style="color:var(--sena-green)"></i>
         <span class="card-title">${info.label}</span>
       </div>
-      <button class="card-remove" title="Eliminar bloque">&times;</button>
+      ${UI.CARD_ACTIONS_HTML}
     `;
 
-    card.querySelector('.card-remove').addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.removeBlock(card);
-    });
+    this.wireCardActions(card, card);
 
     // Seleccionar una acción apunta la inserción a su mismo contenedor
     card.addEventListener('click', (e) => {
-      if (e.target.closest('.card-remove')) return;
+      if (e.target.closest('.card-actions')) return;
       e.stopPropagation();
       this.setActiveContainer(card.parentElement);
     });
@@ -282,7 +383,7 @@ class UI {
         ${inputHtml}
         <span>${def.tail}</span>
       </div>
-      <button class="card-remove" title="Eliminar bloque">&times;</button>
+      ${UI.CARD_ACTIONS_HTML}
     `;
 
     const nested = document.createElement('div');
@@ -300,14 +401,12 @@ class UI {
     group.appendChild(card);
     group.appendChild(nested);
 
-    card.querySelector('.card-remove').addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.removeBlock(group);
-    });
+    // Se elimina y se reordena el grupo completo, con todo lo que tenga dentro
+    this.wireCardActions(card, group);
 
     // Clic en la cabecera apunta la inserción al interior de esta estructura
     card.addEventListener('click', (e) => {
-      if (e.target.closest('.card-remove') || e.target.closest('input, select')) return;
+      if (e.target.closest('.card-actions') || e.target.closest('input, select')) return;
       e.stopPropagation();
       this.setActiveContainer(nested);
     });
@@ -315,6 +414,44 @@ class UI {
     // Se arrastra por la cabecera, pero se mueve el grupo completo con su contenido
     this.makeDraggableBlock(group, card);
     return group;
+  }
+
+  /**
+   * Conecta eliminar y reordenar de una tarjeta. `unidad` es lo que se mueve o
+   * se borra: la tarjeta suelta en una acción, o el grupo entero en una
+   * estructura de control, para que se lleve consigo lo que tiene dentro.
+   */
+  wireCardActions(card, unidad) {
+    card.querySelector('.card-remove').addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.removeBlock(unidad);
+    });
+
+    card.querySelectorAll('.card-move').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.moveBlock(unidad, parseInt(btn.dataset.dir, 10));
+      });
+    });
+  }
+
+  /**
+   * Sube o baja un bloque dentro de su contenedor. No lo saca de una estructura
+   * de control: para eso se borra y se vuelve a añadir donde corresponda.
+   */
+  moveBlock(unidad, direccion) {
+    const hermanos = this.blockChildren(unidad.parentElement);
+    const i = hermanos.indexOf(unidad);
+    const destino = i + direccion;
+    if (i === -1 || destino < 0 || destino >= hermanos.length) return;
+
+    if (direccion < 0) {
+      unidad.parentElement.insertBefore(unidad, hermanos[destino]);
+    } else {
+      // insertBefore con el siguiente del destino equivale a insertar después
+      unidad.parentElement.insertBefore(unidad, hermanos[destino].nextSibling);
+    }
+    this.refreshPlaceholders();
   }
 
   removeBlock(node) {
@@ -549,5 +686,10 @@ class UI {
     entry.innerHTML = `<span class="timestamp">[${timeStr}]</span> ${msg}`;
     consoleLog.appendChild(entry);
     consoleLog.scrollTop = consoleLog.scrollHeight;
+
+    // En móvil la consola no está a la vista: los mensajes que le importan al
+    // aprendiz se muestran flotando sobre el universo. Los de tipo 'system'
+    // son el relato paso a paso y saturarían la pantalla.
+    if (type !== 'system') this.mostrarToast(msg, type);
   }
 }
