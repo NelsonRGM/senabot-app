@@ -138,6 +138,9 @@
         </div>
         
         <div class="speed-control">
+          <button id="btnResetWorldMini" class="btn-icon-square" title="Reiniciar Universo" aria-label="Reiniciar Universo">
+            <i class="fa-solid fa-arrow-rotate-left"></i>
+          </button>
           <label for="speedRange"><i class="fa-solid fa-gauge-high"></i> Velocidad:</label>
           <input type="range" id="speedRange" min="1" max="5" value="3">
           <span id="speedValue">Normal</span>
@@ -161,6 +164,18 @@
         <!-- 3D Canvas Container -->
         <div class="canvas-3d-wrapper" id="canvas3dContainer">
           <!-- Canvas dinámico Three.js se inyecta aquí -->
+
+          <!-- Guía de controles de cámara -->
+          <div class="controls-hint">
+            <div class="hint-card" aria-label="Botón derecho del mouse: gira el mapa">
+              <span class="hint-mouse hint-mouse--right"><i class="fa-solid fa-computer-mouse"></i></span>
+              <i class="fa-solid fa-arrows-rotate hint-action"></i>
+            </div>
+            <div class="hint-card" aria-label="Botón izquierdo del mouse: mueve el mapa">
+              <span class="hint-mouse hint-mouse--left"><i class="fa-solid fa-computer-mouse"></i></span>
+              <i class="fa-solid fa-up-down-left-right hint-action"></i>
+            </div>
+          </div>
 
           <!-- HUD Overlay / Live Stats -->
           <div class="hud-overlay">

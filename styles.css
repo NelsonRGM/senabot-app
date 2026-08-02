@@ -707,6 +707,79 @@ body {
   color: #FFFFFF;
 }
 
+/* Guía de controles de cámara (esquina superior derecha del lienzo) */
+.controls-hint {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  /* Nunca debe capturar el arrastre de la cámara */
+  pointer-events: none;
+  z-index: 10;
+}
+
+.hint-card {
+  background: rgba(10, 20, 32, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--sena-border);
+  border-radius: 8px;
+  padding: 0.35rem 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.hint-mouse {
+  position: relative;
+  display: inline-flex;
+  font-size: 1.05rem;
+  color: var(--text-main);
+}
+
+/* Resalta en verde el botón del mouse al que se refiere la guía */
+.hint-mouse::after {
+  content: "";
+  position: absolute;
+  top: 0.14rem;
+  width: 0.26rem;
+  height: 0.32rem;
+  border-radius: 2px 2px 0 0;
+  background: var(--sena-green);
+}
+
+.hint-mouse--left::after { left: 0.2rem; }
+.hint-mouse--right::after { right: 0.2rem; }
+
+.hint-action {
+  font-size: 0.95rem;
+  color: var(--sena-green);
+}
+
+/* Botón cuadrado solo de ícono */
+.btn-icon-square {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: var(--text-main);
+  width: 1.7rem;
+  height: 1.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-icon-square:hover {
+  background: var(--sena-green);
+  color: #fff;
+}
+
 /* Console Panel */
 .console-panel {
   height: 160px;

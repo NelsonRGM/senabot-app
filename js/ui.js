@@ -149,11 +149,13 @@ class UI {
       this.interpreter.setSpeed(val);
     });
 
-    // Reiniciar Universo
-    document.getElementById('btnResetWorld').addEventListener('click', () => {
+    // Reiniciar Universo: botón del encabezado y atajo de ícono junto a Velocidad
+    const reiniciarUniverso = () => {
       this.loadLevel(this.currentLevel);
       this.log("Universo de SENABOT reiniciado.", "info");
-    });
+    };
+    document.getElementById('btnResetWorld').addEventListener('click', reiniciarUniverso);
+    document.getElementById('btnResetWorldMini').addEventListener('click', reiniciarUniverso);
 
     // Controles de Cámara
     document.getElementById('camIso').addEventListener('click', () => this.world.setCameraIsometric());

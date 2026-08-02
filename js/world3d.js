@@ -125,6 +125,14 @@ class World3D {
     this.controls.dampingFactor = 0.05;
     this.controls.maxPolarAngle = Math.PI / 2 - 0.05; // No ir bajo tierra
 
+    // Invertido respecto al default de OrbitControls para que coincida con la
+    // guía del lienzo: derecho gira el mapa, izquierdo lo desplaza.
+    this.controls.mouseButtons = {
+      LEFT: THREE.MOUSE.PAN,
+      MIDDLE: THREE.MOUSE.DOLLY,
+      RIGHT: THREE.MOUSE.ROTATE
+    };
+
     // 5. Lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     this.scene.add(ambientLight);
