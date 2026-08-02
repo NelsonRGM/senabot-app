@@ -22,25 +22,48 @@ Consecuencia de diseño: para alcanzar un bloque de 3X o 4X hace falta una escal
 
 ## Infraestructura
 
-El sitio se hospedará en **nginx dentro de un entorno Laravel**. La persistencia y la autenticación se construyen como **endpoints de Laravel**, no sobre un servicio externo.
+El sitio se hospeda en **nginx dentro de un entorno Laravel que ya existe**. La aplicación se desarrolla en **https://senabot.nelric.com**.
 
-Implicación para el frontend actual: hoy los niveles viven en `js/levels.js` como un arreglo en el propio bundle. Cuando exista el backend, esos datos pasan a venir de la API, y `levels.js` se convierte en un respaldo o desaparece.
+**Laravel expone únicamente la API.** El frontend sigue siendo HTML, CSS y JavaScript plano servido desde `public/`: sin build, sin Blade, sin acoplarlo al framework. La persistencia y la autenticación se construyen como endpoints de Laravel, no sobre un servicio externo.
+
+Implicación: hoy los mapas viven en `js/levels.js` como un arreglo en el propio archivo. Cuando existan los endpoints, esos datos pasan a venir de la API y `levels.js` se convierte en respaldo o desaparece.
+
+## Modelo de datos
+
+**Nivel = grado de dificultad.** Son cinco y son fijos:
+
+1. Principiante
+2. Intermedio
+3. Avanzado
+4. Genio
+5. Personalizados
+
+**Mapa = el reto concreto que se juega.** Cada nivel contiene varios. Lo que crece con el tiempo es la cantidad de mapas, no la de niveles.
+
+Los cinco retos que hoy tiene `js/levels.js` no son niveles: son **mapas** que habrá que repartir entre Principiante e Intermedio.
+
+**"Personalizados" es donde aterriza el creador de niveles.** El hito 2 no necesita un concepto aparte: lo que arme el usuario entra como mapas de ese quinto nivel.
+
+### Desbloqueo
+
+Secuencial en los dos ejes: un mapa se abre al completar el anterior, y un nivel se abre al completar el anterior.
+
+Como la persistencia vive en Laravel, el desbloqueo no puede funcionar hasta que existan los endpoints. **Pendiente de decidir** cómo se maneja mientras tanto: dejar el bloqueo inerte tras un interruptor, adelantar los endpoints de persistencia antes que el login, o no tocar el bloqueo hasta el hito 3.
+
+**Pendiente de decidir** también si "Personalizados" queda exento del bloqueo — parece razonable que alguien pueda abrir los mapas que él mismo creó sin haber terminado Genio.
 
 ## Hitos pendientes
 
-### 0. Modelo de datos: niveles con varios mapas
-
-**Precede a los otros tres.** El proyecto final tendrá varios niveles y, dentro de cada nivel, varios mapas. Hoy `js/levels.js` es una lista plana donde cada entrada es a la vez nivel y mapa, y el `<select id="levelSelect">` los muestra de corrido.
-
-Conviene acordar este esquema antes de invertir en los demás hitos, porque los define a todos:
-
-- la **navegación móvil** no es la misma para un selector plano que para uno de dos niveles;
-- el **creador de niveles** necesita saber si produce un mapa suelto o un nivel completo;
-- el **guardado de avance** registra progreso por mapa, pero el desbloqueo probablemente sea por nivel.
-
 ### 1. Versión móvil
 
-La interfaz actual es de escritorio: tres paneles en fila (editor, universo 3D, consola) que asumen ancho amplio. En móvil hay que resolver al menos la convivencia del lienzo 3D con el editor de bloques, y los controles de cámara, que hoy dependen de botones del mouse.
+**En definición.** El diseño lo fija Nelson antes de escribir código.
+
+La interfaz actual es de escritorio: dos columnas (editor de 360 px y universo 3D con consola) que asumen ancho amplio y no tienen ninguna media query. En móvil hay que resolver al menos:
+
+- la convivencia del lienzo 3D con el editor de bloques, que juntos no caben en el alto de un teléfono;
+- los controles de cámara, que hoy se explican con botones del mouse;
+- el arrastrar y soltar bloques, que no funciona con el tacto (tocar el bloque sí lo añade, así que degrada bien);
+- si la navegación de niveles y mapas con candados entra en este hito o llega después.
 
 ### 2. Creador de niveles
 
@@ -48,7 +71,7 @@ Editor para armar mapas sin tocar `js/levels.js`. Debe cubrir lo que ya entiende
 
 ### 3. Login con Google y guardado de avance
 
-Autenticación sobre Laravel con proveedor Google. Guarda el progreso del aprendiz por mapa.
+Autenticación sobre Laravel con proveedor Google. Guarda el progreso del aprendiz por mapa, que además es la fuente de verdad de qué tiene desbloqueado.
 
 ## Pendientes menores conocidos
 
