@@ -59,6 +59,9 @@ class World3D {
   // Píxeles que sube el tablero dentro del lienzo: centrado, la esquina
   // sur-este quedaba tapada por el borde inferior del contenedor.
   static get VIEW_SHIFT_Y() { return 100; }
+  // Hueco entre mosaicos vecinos, en unidades de mundo (tileSize vale 2.0)
+  static get TILE_GAP() { return 0.04; }
+  static get TILE_THICKNESS() { return 0.2; }
 
   // Dimensiones del disco recolectable
   static get DISC_RADIUS() { return 0.42; }
@@ -219,11 +222,14 @@ class World3D {
           metalness: 0.2
         });
 
-        const tileGeo = new THREE.BoxGeometry(this.tileSize - 0.08, 0.4, this.tileSize - 0.08);
+        const lado = this.tileSize - World3D.TILE_GAP;
+        const tileGeo = new THREE.BoxGeometry(lado, World3D.TILE_THICKNESS, lado);
         const tileMesh = new THREE.Mesh(tileGeo, tileMat);
         tileMesh.position.set(
           c * this.tileSize + this.tileSize / 2,
-          -0.2,
+          // Hundido medio grosor para que la cara superior quede en y = 0, que
+          // es el plano al que se refieren robot, discos y obstáculos
+          -World3D.TILE_THICKNESS / 2,
           r * this.tileSize + this.tileSize / 2
         );
         tileMesh.receiveShadow = true;
