@@ -54,7 +54,8 @@ senabot-app/
 ├── index.html          # Estructura de la interfaz
 ├── styles.css          # Estilos e identidad visual SENA
 ├── assets/
-│   └── disco-logo.png  # Textura del disco recolectable
+│   ├── disco-logo.png  # Textura del disco recolectable
+│   └── logo-sena.png   # Textura del disco de meta de entrega
 └── js/
     ├── levels.js       # Definición de niveles y retos
     ├── interpreter.js  # Intérprete del lenguaje de comandos

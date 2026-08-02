@@ -55,6 +55,7 @@ class World3D {
   // Logo estampado en las caras de los discos. Si el archivo no existe,
   // los discos simplemente quedan dorados lisos.
   static get DISC_LOGO_URL() { return 'assets/disco-logo.png'; }
+  static get GOAL_LOGO_URL() { return 'assets/logo-sena.png'; }
 
   // Dimensiones del disco recolectable
   static get DISC_RADIUS() { return 0.42; }
@@ -315,37 +316,101 @@ class World3D {
     return textura;
   }
 
-  // Moneda verde flotante que marca una casilla de entrega
+  // Disco con el logo del SENA, acostado y estático sobre la casilla de entrega.
+  // Va al ras del piso para no estorbarle al robot cuando se para encima.
   createDeliveryMarker(x, posY, z) {
     const targetGroup = new THREE.Group();
 
-    const coinGeo = new THREE.CylinderGeometry(0.58, 0.58, 0.10, 32);
-    coinGeo.rotateX(Math.PI / 2); // Moneda parada verticalmente
-    const coinMat = new THREE.MeshStandardMaterial({
+    const radio = 0.62;
+    const alturaDisco = 0.06;
+    // Apenas por encima del piso (y = 0) para que no haya z-fighting con la casilla
+    const alturaSobrePiso = 0.03;
+
+    const cantoMat = new THREE.MeshStandardMaterial({
       color: 0x39A900,
       emissive: 0x39A900,
-      emissiveIntensity: 0.85,
-      metalness: 0.8,
-      roughness: 0.2
+      emissiveIntensity: 0.4,
+      metalness: 0.5,
+      roughness: 0.45
     });
-    const coin = new THREE.Mesh(coinGeo, coinMat);
-    coin.position.y = 0.65; // Más cerca del piso
-    coin.castShadow = true;
-    targetGroup.add(coin);
 
-    // Borde brillante de la moneda
-    const edgeGeo = new THREE.TorusGeometry(0.58, 0.03, 12, 32);
-    const edgeMat = new THREE.MeshStandardMaterial({ color: 0x00FFCC, emissive: 0x00FFCC, emissiveIntensity: 1.0 });
-    const edge = new THREE.Mesh(edgeGeo, edgeMat);
-    coin.add(edge);
+    // La textura del logo va solo en la cara superior, que es la única visible
+    const textura = this.getGoalLogoTexture();
+    const caraMat = textura
+      ? new THREE.MeshStandardMaterial({
+          map: textura,
+          emissiveMap: textura,
+          emissive: 0xFFFFFF,
+          emissiveIntensity: 0.3,
+          metalness: 0.1,
+          roughness: 0.6
+        })
+      : cantoMat;
+    if (textura) this.goalLogoMaterials.push(caraMat);
 
-    targetGroup.userData = { coinMesh: coin };
+    // CylinderGeometry ordena sus materiales como [lateral, tapa superior, tapa inferior]
+    const discGeo = new THREE.CylinderGeometry(radio, radio, alturaDisco, 48);
+    const disc = new THREE.Mesh(discGeo, [cantoMat, caraMat, cantoMat]);
+    disc.position.y = alturaSobrePiso;
+    // La tapa superior mapea el alto de la textura sobre +Z, que en la cámara
+    // isométrica apunta hacia el observador: se gira para que el logo se lea derecho
+    disc.rotation.y = 3 * Math.PI / 4;
+    disc.receiveShadow = true;
+    targetGroup.add(disc);
+
+    // Aro brillante acostado que delimita la casilla de entrega
+    const aroGeo = new THREE.TorusGeometry(radio, 0.03, 12, 48);
+    aroGeo.rotateX(Math.PI / 2);
+    const aroMat = new THREE.MeshStandardMaterial({ color: 0x00FFCC, emissive: 0x00FFCC, emissiveIntensity: 0.9 });
+    const aro = new THREE.Mesh(aroGeo, aroMat);
+    aro.position.y = alturaSobrePiso;
+    targetGroup.add(aro);
+
     targetGroup.position.set(
       x * this.tileSize + this.tileSize / 2,
       posY,
       z * this.tileSize + this.tileSize / 2
     );
     return targetGroup;
+  }
+
+  /**
+   * Carga (una sola vez) el logo de las casillas de entrega.
+   * Si el PNG no está, los discos quedan verdes lisos en vez de romperse.
+   */
+  getGoalLogoTexture() {
+    if (this.goalLogoTexture !== undefined) return this.goalLogoTexture;
+
+    if (typeof THREE.TextureLoader !== 'function') {
+      this.goalLogoTexture = null;
+      return null;
+    }
+
+    this.goalLogoMaterials = [];
+
+    this.goalLogoTexture = new THREE.TextureLoader().load(
+      World3D.GOAL_LOGO_URL,
+      undefined,
+      undefined,
+      () => {
+        console.warn(`SENABOT: no se pudo cargar ${World3D.GOAL_LOGO_URL}. Las metas quedan sin logo.`);
+        this.goalLogoTexture = null;
+        this.goalLogoMaterials.forEach(m => {
+          m.map = null;
+          m.emissiveMap = null;
+          m.color.setHex(0x39A900);
+          m.emissive.setHex(0x39A900);
+          m.emissiveIntensity = 0.4;
+          m.needsUpdate = true;
+        });
+      }
+    );
+
+    this.goalLogoTexture.generateMipmaps = false;
+    this.goalLogoTexture.minFilter = THREE.LinearFilter;
+    this.goalLogoTexture.magFilter = THREE.LinearFilter;
+
+    return this.goalLogoTexture;
   }
 
   /**
@@ -799,6 +864,8 @@ class World3D {
     this.discMeshes = [];
     this.obstacleMeshes = [];
     this.targetMeshes = [];
+    // Los materiales del nivel anterior ya no están en escena: solo interesan los del actual
+    if (this.goalLogoMaterials) this.goalLogoMaterials = [];
     this.carriedDiscMesh = null;
     if (this.robotMesh) {
       this.scene.remove(this.robotMesh);
@@ -850,12 +917,7 @@ class World3D {
 
       d.material.emissiveIntensity = bajoElRobot ? 0.95 : 0.5;
     });
-    this.targetMeshes.forEach(target => {
-      const coin = target.userData && target.userData.coinMesh;
-      if (!coin) return;
-      coin.rotation.y += 0.035; // Giro vertical continuo estilo moneda 3D
-      coin.position.y = 0.65 + Math.sin(levitateTime) * 0.08; // Flotación más cerca del piso
-    });
+    // Las metas de entrega son discos estáticos: no giran ni levitan
 
     if (this.renderer && this.scene && this.camera) {
       this.renderer.render(this.scene, this.camera);
