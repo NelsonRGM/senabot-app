@@ -163,6 +163,12 @@ class Interpreter {
     return true;
   }
 
+  // Nivel de elevación de una casilla: 0 si está a ras de suelo
+  heightAt(x, z) {
+    const obs = this.world.obstacleMeshes.find(o => o.userData.x === x && o.userData.z === z);
+    return obs ? obs.userData.height : 0;
+  }
+
   async executeAction(action) {
     const s = this.world.robotState;
     const grid = this.world.gridSize;
@@ -185,10 +191,8 @@ class Interpreter {
         }
 
         // Validar obstáculos
-        const obs = this.world.obstacleMeshes.find(o => o.userData.x === nextX && o.userData.z === nextZ);
-        const currObs = this.world.obstacleMeshes.find(o => o.userData.x === s.x && o.userData.z === s.z);
-        const currH = currObs ? currObs.userData.height : 0;
-        const nextH = obs ? obs.userData.height : 0;
+        const currH = this.heightAt(s.x, s.z);
+        const nextH = this.heightAt(nextX, nextZ);
 
         if (nextH > currH) {
           this.ui.log(`❌ Bloqueado por elevación. Usa 'Saltar' para subir.`, "error");
@@ -221,11 +225,25 @@ class Interpreter {
           this.ui.log(`❌ No se puede saltar fuera del mapa.`, "error");
           return false;
         }
+
+        // Solo se salta cuando hay desnivel, y como máximo de 1 nivel (subiendo o bajando)
+        const currH = this.heightAt(s.x, s.z);
+        const nextH = this.heightAt(nextX, nextZ);
+        const desnivel = nextH - currH;
+
+        if (desnivel === 0) {
+          this.ui.log(`❌ La casilla (${nextX}, ${nextZ}) está a la misma altura. Solo se puede saltar hacia un desnivel; usa 'Paso Adelante'.`, "error");
+          return false;
+        }
+        if (Math.abs(desnivel) > 1) {
+          const sentido = desnivel > 0 ? "subir" : "bajar";
+          this.ui.log(`❌ Desnivel de ${Math.abs(desnivel)} niveles: SENABOT solo puede ${sentido} 1 nivel de un salto.`, "error");
+          return false;
+        }
+
         s.x = nextX;
         s.z = nextZ;
-        const targetY = 0.0;
-        const obs = this.world.obstacleMeshes.find(o => o.userData.x === nextX && o.userData.z === nextZ);
-        const ty = obs ? this.world.tileSize * obs.userData.height : 0.0;
+        const ty = this.world.blockHeight * nextH;
 
         this.world.animateJump(
           nextX * this.world.tileSize + this.world.tileSize / 2,
@@ -233,7 +251,8 @@ class Interpreter {
           nextZ * this.world.tileSize + this.world.tileSize / 2,
           this.stepDelay * 0.9
         );
-        this.ui.log(`SENABOT realiza un salto hacia (${s.x}, ${s.z}).`, "system");
+        const accion = desnivel > 0 ? "sube" : "baja";
+        this.ui.log(`SENABOT salta y ${accion} 1 nivel hasta (${s.x}, ${s.z}).`, "system");
         return true;
       }
 

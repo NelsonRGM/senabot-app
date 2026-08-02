@@ -78,6 +78,9 @@ class World3D {
     // Estado del Mundo
     this.gridSize = { cols: 8, rows: 8 };
     this.tileSize = 2.0;
+    // Altura en unidades de mundo de un nivel de elevación (1X).
+    // Equivale al 50% del ancho de casilla: un obstáculo de height 1 mide 1.0.
+    this.blockHeight = this.tileSize * 0.5;
     this.robotState = {
       x: 0,
       z: 0,
@@ -202,7 +205,7 @@ class World3D {
     // Casillas de Entrega con Moneda Flotante Vertical (Sin círculo en el piso)
     (levelData.deliveryTargets || []).forEach(target => {
       const obs = obstacles.find(o => o.x === target.x && o.z === target.z);
-      const posY = obs ? this.tileSize * obs.height : 0.0;
+      const posY = obs ? this.blockHeight * obs.height : 0.0;
       const marker = this.createDeliveryMarker(target.x, posY, target.z);
       this.gridGroup.add(marker);
       this.targetMeshes.push(marker);
@@ -210,14 +213,14 @@ class World3D {
 
     // Obstáculos (Elevaciones/Muros)
     obstacles.forEach(obs => {
-      const obsGeo = new THREE.BoxGeometry(this.tileSize - 0.1, this.tileSize * obs.height, this.tileSize - 0.1);
+      const obsGeo = new THREE.BoxGeometry(this.tileSize - 0.1, this.blockHeight * obs.height, this.tileSize - 0.1);
       const obsMat = new THREE.MeshStandardMaterial({
         color: 0x005580,
         roughness: 0.3,
         metalness: 0.6
       });
       const obsMesh = new THREE.Mesh(obsGeo, obsMat);
-      const posY = (this.tileSize * obs.height) / 2;
+      const posY = (this.blockHeight * obs.height) / 2;
       obsMesh.position.set(
         obs.x * this.tileSize + this.tileSize / 2,
         posY,
@@ -427,7 +430,7 @@ class World3D {
 
     // Un disco sobre una casilla elevada descansa encima del obstáculo
     const obs = this.obstacleMeshes.find(o => o.userData.x === x && o.userData.z === z);
-    const baseY = (obs ? this.tileSize * obs.userData.height : 0) + 0.55;
+    const baseY = (obs ? this.blockHeight * obs.userData.height : 0) + 0.55;
 
     // Los discos apilados en una misma casilla se separan para verse como una pila
     mesh.position.set(
@@ -662,7 +665,7 @@ class World3D {
     let targetY = 0.0;
     const obsAtCell = this.obstacleMeshes.find(o => o.userData.x === this.robotState.x && o.userData.z === this.robotState.z);
     if (obsAtCell) {
-      targetY = this.tileSize * obsAtCell.userData.height;
+      targetY = this.blockHeight * obsAtCell.userData.height;
     }
 
     // Orientación (0: Norte -Z, 1: Este +X, 2: Sur +Z, 3: Oeste -X)
@@ -728,7 +731,8 @@ class World3D {
 
       // Parábola de salto
       const arc = Math.sin(progress * Math.PI);
-      this.robotMesh.position.y = startPos.y + (ty - startPos.y) * progress + arc * 1.5;
+      // La parábola se escala con la altura de bloque para que el salto de 1 nivel se vea proporcionado
+      this.robotMesh.position.y = startPos.y + (ty - startPos.y) * progress + arc * this.blockHeight;
 
       if (progress < 1.0) {
         requestAnimationFrame(step);
