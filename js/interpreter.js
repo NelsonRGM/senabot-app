@@ -190,12 +190,13 @@ class Interpreter {
           return false;
         }
 
-        // Validar obstáculos
+        // Caminar es plano: cualquier cambio de altura exige 'Saltar'
         const currH = this.heightAt(s.x, s.z);
         const nextH = this.heightAt(nextX, nextZ);
 
-        if (nextH > currH) {
-          this.ui.log(`❌ Bloqueado por elevación. Usa 'Saltar' para subir.`, "error");
+        if (nextH !== currH) {
+          const sentido = nextH > currH ? "subir" : "bajar";
+          this.ui.log(`❌ La casilla (${nextX}, ${nextZ}) está a otra altura. Usa 'Saltar' para ${sentido} 1 nivel.`, "error");
           return false;
         }
 
@@ -295,15 +296,16 @@ class Interpreter {
     if (s.dir === 3) nextX -= 1;
 
     switch (condition) {
+      // 'Libre' significa que 'Paso Adelante' funcionaría: dentro del mapa y sin
+      // cambio de altura. Así 'mientras frente_libre -> paso_adelante' también
+      // recorre una meseta elevada, donde sí hay obstáculo bajo el robot.
       case 'frente_libre': {
         if (nextX < 0 || nextX >= grid.cols || nextZ < 0 || nextZ >= grid.rows) return false;
-        const obs = this.world.obstacleMeshes.find(o => o.userData.x === nextX && o.userData.z === nextZ);
-        return !obs;
+        return this.heightAt(nextX, nextZ) === this.heightAt(s.x, s.z);
       }
       case 'frente_bloqueado': {
         if (nextX < 0 || nextX >= grid.cols || nextZ < 0 || nextZ >= grid.rows) return true;
-        const obs = this.world.obstacleMeshes.find(o => o.userData.x === nextX && o.userData.z === nextZ);
-        return !!obs;
+        return this.heightAt(nextX, nextZ) !== this.heightAt(s.x, s.z);
       }
       case 'hay_disco': {
         return this.world.discsAt(s.x, s.z) > 0;
