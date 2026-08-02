@@ -72,6 +72,10 @@ senabot-app/
 
 Todas las dependencias se cargan desde CDN.
 
+## Hacia dónde va el proyecto
+
+Las decisiones de infraestructura y el trabajo pendiente están en [ROADMAP.md](ROADMAP.md).
+
 ## Autor
 
 Nelson R. Gómez — [@NelsonRGM](https://github.com/NelsonRGM)
