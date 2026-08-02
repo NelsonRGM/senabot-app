@@ -732,26 +732,45 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
+/*
+ * El mouse se dibuja con CSS en vez de usar el glifo de Font Awesome: a este
+ * tamaño el glifo no deja distinguir los dos botones. `overflow: hidden`
+ * recorta el relleno verde contra el contorno redondeado.
+ */
 .hint-mouse {
   position: relative;
-  display: inline-flex;
-  font-size: 1.05rem;
-  color: var(--text-main);
+  flex-shrink: 0;
+  width: 21px;
+  height: 30px;
+  border: 1.5px solid var(--text-main);
+  border-radius: 10.5px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
 }
 
-/* Resalta en verde el botón del mouse al que se refiere la guía */
+/* Línea que separa el botón izquierdo del derecho */
 .hint-mouse::after {
   content: "";
   position: absolute;
-  top: 0.14rem;
-  width: 0.26rem;
-  height: 0.32rem;
-  border-radius: 2px 2px 0 0;
+  top: 0;
+  left: 50%;
+  margin-left: -0.75px;
+  width: 1.5px;
+  height: 13px;
+  background: var(--text-main);
+}
+
+/* Botón al que se refiere la guía */
+.hint-mouse-btn {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 13px;
   background: var(--sena-green);
 }
 
-.hint-mouse--left::after { left: 0.2rem; }
-.hint-mouse--right::after { right: 0.2rem; }
+.hint-mouse--left .hint-mouse-btn { left: 0; }
+.hint-mouse--right .hint-mouse-btn { right: 0; }
 
 .hint-action {
   font-size: 0.95rem;
