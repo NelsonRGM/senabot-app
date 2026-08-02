@@ -378,29 +378,37 @@ class World3D {
       roughness: 0.45
     });
 
-    // La textura del logo va solo en la cara superior, que es la única visible
-    const textura = this.getGoalLogoTexture();
-    const caraMat = textura
-      ? new THREE.MeshStandardMaterial({
-          map: textura,
-          emissiveMap: textura,
-          emissive: 0xFFFFFF,
-          emissiveIntensity: 0.3,
-          metalness: 0.1,
-          roughness: 0.6
-        })
-      : cantoMat;
-    if (textura) this.goalLogoMaterials.push(caraMat);
-
-    // CylinderGeometry ordena sus materiales como [lateral, tapa superior, tapa inferior]
     const discGeo = new THREE.CylinderGeometry(radio, radio, alturaDisco, 48);
-    const disc = new THREE.Mesh(discGeo, [cantoMat, caraMat, cantoMat]);
+    const disc = new THREE.Mesh(discGeo, cantoMat);
     disc.position.y = alturaSobrePiso;
-    // La tapa superior mapea el alto de la textura sobre +Z, que en la cámara
-    // isométrica apunta hacia el observador: se gira para que el logo se lea derecho
-    disc.rotation.y = 3 * Math.PI / 4;
     disc.receiveShadow = true;
     targetGroup.add(disc);
+
+    /*
+     * El logo NO va sobre la tapa del cilindro, por las mismas dos razones que
+     * en los discos recolectables: sus UV salen giradas 90°, y un PNG con
+     * transparencia dejaría agujeros en vez de dejar ver el verde de abajo.
+     * Se pega como círculo aparte, opaco por debajo y con alfa activo.
+     */
+    const textura = this.getGoalLogoTexture();
+    if (textura) {
+      const caraGeo = new THREE.CircleGeometry(radio * 0.86, 40);
+      caraGeo.rotateX(-Math.PI / 2); // Del plano XY al piso
+      const caraMat = new THREE.MeshStandardMaterial({
+        map: textura,
+        transparent: true,
+        emissiveMap: textura,
+        emissive: 0xFFFFFF,
+        emissiveIntensity: 0.25,
+        metalness: 0.1,
+        roughness: 0.6
+      });
+      const cara = new THREE.Mesh(caraGeo, caraMat);
+      cara.position.y = alturaSobrePiso + alturaDisco / 2 + 0.004; // Justo sobre la tapa
+      cara.rotation.y = Math.PI / 4; // Que se lea derecho en la vista isométrica
+      targetGroup.add(cara);
+      this.goalLogoMeshes.push(cara);
+    }
 
     // Aro brillante acostado que delimita la casilla de entrega
     const aroGeo = new THREE.TorusGeometry(radio, 0.03, 12, 48);
@@ -430,7 +438,7 @@ class World3D {
       return null;
     }
 
-    this.goalLogoMaterials = [];
+    this.goalLogoMeshes = [];
 
     this.goalLogoTexture = new THREE.TextureLoader().load(
       World3D.GOAL_LOGO_URL,
@@ -439,14 +447,8 @@ class World3D {
       () => {
         console.warn(`SENABOT: no se pudo cargar ${World3D.GOAL_LOGO_URL}. Las metas quedan sin logo.`);
         this.goalLogoTexture = null;
-        this.goalLogoMaterials.forEach(m => {
-          m.map = null;
-          m.emissiveMap = null;
-          m.color.setHex(0x39A900);
-          m.emissive.setHex(0x39A900);
-          m.emissiveIntensity = 0.4;
-          m.needsUpdate = true;
-        });
+        // Sin logo el disco verde se basta solo, igual que los recolectables
+        this.goalLogoMeshes.forEach(m => { m.visible = false; });
       }
     );
 
@@ -908,8 +910,8 @@ class World3D {
     this.discMeshes = [];
     this.obstacleMeshes = [];
     this.targetMeshes = [];
-    // Los materiales del nivel anterior ya no están en escena: solo interesan los del actual
-    if (this.goalLogoMaterials) this.goalLogoMaterials = [];
+    // Las caras del nivel anterior ya no están en escena: solo interesan las del actual
+    if (this.goalLogoMeshes) this.goalLogoMeshes = [];
     this.carriedDiscMesh = null;
     if (this.robotMesh) {
       this.scene.remove(this.robotMesh);
